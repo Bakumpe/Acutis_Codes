@@ -11,82 +11,167 @@ This guide walks through each core concept, explains what it *means*
 **JavaScript** side by side so you can see where the languages agree and
 where they diverge.
 
+**This edition is ordered as a learning path**, not just a topic index —
+work through the phases in order. Each phase builds on the one before it,
+and a few concepts (type systems, memory, error-as-value) are deliberately
+placed *after* you've written enough code to feel the problems they solve,
+rather than upfront where they'd just be abstract.
+
 ---
 
 ## Table of Contents
 
-1. [Control Flow](#1-control-flow)
-2. [Data Fundamentals](#2-data-fundamentals)
-3. [Structuring Code](#3-structuring-code)
-4. [Programming Paradigms](#4-programming-paradigms)
-5. [Memory & Execution](#5-memory--execution)
-6. [Error Handling](#6-error-handling)
-7. [Input, Output & Libraries](#7-input-output--libraries)
-8. [How to Use This Reference](#8-how-to-use-this-reference)
+**Phase 1 — The Absolute Basics**
+1. [Variables & Data Types](#1-variables--data-types)
+2. [Operators](#2-operators)
+3. [Statements vs. Expressions](#3-statements-vs-expressions)
+4. [Conditionals](#4-conditionals)
+5. [Loops](#5-loops)
+6. [Branching: break, continue, return](#6-branching-break-continue-return)
+
+**Phase 2 — Organizing Code**
+7. [Functions](#7-functions)
+8. [Scope & Lifetime](#8-scope--lifetime)
+9. [Data Structures](#9-data-structures)
+10. [Procedural Programming](#10-procedural-programming)
+
+**Phase 3 — Robust, Connected Programs**
+11. [Input/Output](#11-inputoutput)
+12. [Exceptions (try/catch)](#12-exceptions-trycatch)
+13. [Modules & Packages](#13-modules--packages)
+14. [APIs & Libraries](#14-apis--libraries)
+
+**Phase 4 — Deeper Concepts**
+15. [Recursion](#15-recursion)
+16. [Type Systems](#16-type-systems)
+17. [Pointers & References](#17-pointers--references)
+18. [Memory Management](#18-memory-management)
+
+**Phase 5 — Paradigms & Advanced Patterns**
+19. [Object-Oriented Programming](#19-object-oriented-programming)
+20. [Functional Programming](#20-functional-programming)
+21. [Error-as-Value](#21-error-as-value)
+
+[How to Use This Reference](#how-to-use-this-reference)
 
 ---
 
-## 1. Control Flow
+# Phase 1 — The Absolute Basics
 
-Control flow is how a program decides **what to run, and how many times**.
-Without it, code is just a fixed list of instructions executed once, top
-to bottom — control flow is what makes a program *react* and *repeat*.
+*Goal: be able to write a simple, working program — no functions yet,
+just values, decisions, and repetition.*
 
-### 1.1 Loops
+## 1. Variables & Data Types
 
-A loop repeats a block of code until some condition is no longer true.
-The two universal shapes are: "repeat this a known number of times" (a
-`for` loop) and "repeat this while a condition holds" (a `while` loop).
+A variable is a named reference to a value in memory. Every language has
+some core primitive types: numbers, text (strings), booleans (true/false),
+and a concept of "nothing" (`None` / `null`).
 
 **Python**
 ```python
-# for loop — iterate over a sequence
-for i in range(5):
-    print(i)  # 0 1 2 3 4
-
-# while loop — repeat while a condition is true
-count = 0
-while count < 5:
-    print(count)
-    count += 1
-
-# iterating directly over data (Python's preferred style)
-fruits = ["apple", "banana", "cherry"]
-for fruit in fruits:
-    print(fruit)
+age = 25            # int
+price = 19.99        # float
+name = "Alice"       # str
+is_active = True     # bool
+nothing = None        # NoneType
 ```
 
 **JavaScript**
 ```javascript
-// for loop
-for (let i = 0; i < 5; i++) {
-  console.log(i); // 0 1 2 3 4
-}
-
-// while loop
-let count = 0;
-while (count < 5) {
-  console.log(count);
-  count++;
-}
-
-// iterating directly over data
-const fruits = ["apple", "banana", "cherry"];
-for (const fruit of fruits) {
-  console.log(fruit);
-}
-
-// or, functionally:
-fruits.forEach(fruit => console.log(fruit));
+let age = 25;              // number (JS has one numeric type)
+let price = 19.99;         // number
+let name = "Alice";        // string
+let isActive = true;       // boolean
+let nothing = null;        // null
+let notDefined;            // undefined — JS's second "nothing"
 ```
 
-**Apply it when:** you need to process every item in a collection, repeat
-an action a fixed number of times, or keep retrying something until a
-condition changes (polling, waiting for input, game loops).
+**Key difference:** JavaScript distinguishes `null` (intentionally
+"nothing") from `undefined` (never assigned) — Python only has `None`.
+
+**Apply it when:** always — this is the atomic unit of every program.
+Choosing the right type up front (e.g., a number vs. a string that looks
+like a number) avoids a huge class of bugs.
 
 ---
 
-### 1.2 Conditionals
+## 2. Operators
+
+Arithmetic (`+ - * / %`), comparison (`== != < > <= >=`), logical
+(`and/or/not` or `&& || !`), and assignment (`= += -=`) operators are
+universal, but their exact behavior varies.
+
+**Python**
+```python
+7 // 2   # 3   — floor (integer) division
+7 % 2    # 1   — remainder
+2 ** 10  # 1024 — exponentiation
+5 == 5.0 # True — value equality
+```
+
+**JavaScript**
+```javascript
+Math.floor(7 / 2); // 3 — JS has no // operator, use Math.floor
+7 % 2;              // 1
+2 ** 10;             // 1024
+5 == 5;              // true — loose equality (coerces types)
+5 === 5;             // true — strict equality (no coercion, preferred)
+"5" == 5;             // true  (loose — coerces!)
+"5" === 5;            // false (strict — no coercion)
+```
+
+**Apply it when:** always prefer `===`/`!==` in JavaScript over `==`/`!=`
+to avoid coercion surprises. In Python, `==` is already strict about type
+in the way JS's `===` is.
+
+---
+
+## 3. Statements vs. Expressions
+
+A **statement** performs an action and produces no value of its own
+(`if`, a loop, an assignment). An **expression** evaluates *to* a value
+and can be used anywhere a value is expected. Understanding the
+difference explains why you can write `x = 5 + 3` (an expression on the
+right) but not `x = if y: 1 else: 2` in most languages (though some, like
+Python's ternary, blur this intentionally).
+
+**Python**
+```python
+# expression — evaluates to a value
+result = 5 + 3          # 8
+is_adult = age >= 18    # True/False
+
+# ternary expression (a compact if/else that evaluates to a value)
+label = "adult" if age >= 18 else "minor"
+
+# statement — performs an action, has no value
+if age >= 18:
+    print("Welcome")
+```
+
+**JavaScript**
+```javascript
+// expression
+const result = 5 + 3;
+const isAdult = age >= 18;
+
+// ternary expression
+const label = age >= 18 ? "adult" : "minor";
+
+// statement
+if (age >= 18) {
+  console.log("Welcome");
+}
+```
+
+**Apply it when:** you're deciding whether something can be assigned,
+passed as an argument, or used inline — if it produces a value, it's an
+expression and can go there; if not, it's a statement and needs its own
+line.
+
+---
+
+## 4. Conditionals
 
 Conditionals let a program branch — run different code depending on
 whether something is true or false.
@@ -143,56 +228,67 @@ from an API.
 
 ---
 
-### 1.3 Statements vs. Expressions
+## 5. Loops
 
-A **statement** performs an action and produces no value of its own
-(`if`, a loop, an assignment). An **expression** evaluates *to* a value
-and can be used anywhere a value is expected. Understanding the
-difference explains why you can write `x = 5 + 3` (an expression on the
-right) but not `x = if y: 1 else: 2` in most languages (though some, like
-Python's ternary, blur this intentionally).
+A loop repeats a block of code until some condition is no longer true.
+The two universal shapes are: "repeat this a known number of times" (a
+`for` loop) and "repeat this while a condition holds" (a `while` loop).
 
 **Python**
 ```python
-# expression — evaluates to a value
-result = 5 + 3          # 8
-is_adult = age >= 18    # True/False
+# for loop — iterate over a sequence
+for i in range(5):
+    print(i)  # 0 1 2 3 4
 
-# ternary expression (a compact if/else that evaluates to a value)
-label = "adult" if age >= 18 else "minor"
+# while loop — repeat while a condition is true
+count = 0
+while count < 5:
+    print(count)
+    count += 1
 
-# statement — performs an action, has no value
-if age >= 18:
-    print("Welcome")
+# iterating directly over data (Python's preferred style)
+fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
 ```
 
 **JavaScript**
 ```javascript
-// expression
-const result = 5 + 3;
-const isAdult = age >= 18;
-
-// ternary expression
-const label = age >= 18 ? "adult" : "minor";
-
-// statement
-if (age >= 18) {
-  console.log("Welcome");
+// for loop
+for (let i = 0; i < 5; i++) {
+  console.log(i); // 0 1 2 3 4
 }
+
+// while loop
+let count = 0;
+while (count < 5) {
+  console.log(count);
+  count++;
+}
+
+// iterating directly over data
+const fruits = ["apple", "banana", "cherry"];
+for (const fruit of fruits) {
+  console.log(fruit);
+}
+
+// or, functionally:
+fruits.forEach(fruit => console.log(fruit));
 ```
 
-**Apply it when:** you're deciding whether something can be assigned,
-passed as an argument, or used inline — if it produces a value, it's an
-expression and can go there; if not, it's a statement and needs its own
-line.
+**Apply it when:** you need to process every item in a collection, repeat
+an action a fixed number of times, or keep retrying something until a
+condition changes (polling, waiting for input, game loops).
 
 ---
 
-### 1.4 Branching: break, continue, return
+## 6. Branching: break, continue, return
 
 These interrupt normal control flow: `break` exits a loop entirely,
 `continue` skips to the next iteration, and `return` exits a function
-(optionally handing back a value).
+(optionally handing back a value — you'll use `return` properly once you
+hit Functions in Phase 2, but it belongs conceptually with `break`/
+`continue` here).
 
 **Python**
 ```python
@@ -232,150 +328,13 @@ function as soon as a result is known.
 
 ---
 
-## 2. Data Fundamentals
+# Phase 2 — Organizing Code
 
-### 2.1 Variables & Data Types
+*Goal: stop writing everything top-to-bottom in one block. Group logic
+into reusable functions, and start working with real collections of
+data instead of single values.*
 
-A variable is a named reference to a value in memory. Every language has
-some core primitive types: numbers, text (strings), booleans (true/false),
-and a concept of "nothing" (`None` / `null`).
-
-**Python**
-```python
-age = 25            # int
-price = 19.99        # float
-name = "Alice"       # str
-is_active = True     # bool
-nothing = None        # NoneType
-```
-
-**JavaScript**
-```javascript
-let age = 25;              // number (JS has one numeric type)
-let price = 19.99;         // number
-let name = "Alice";        // string
-let isActive = true;       // boolean
-let nothing = null;        // null
-let notDefined;            // undefined — JS's second "nothing"
-```
-
-**Key difference:** JavaScript distinguishes `null` (intentionally
-"nothing") from `undefined` (never assigned) — Python only has `None`.
-
-**Apply it when:** always — this is the atomic unit of every program.
-Choosing the right type up front (e.g., a number vs. a string that looks
-like a number) avoids a huge class of bugs.
-
----
-
-### 2.2 Type Systems
-
-**Static vs. dynamic:** in a *statically* typed language, a variable's
-type is fixed and checked before the program runs (Java, C++, TypeScript).
-In a *dynamically* typed language, types are checked at runtime, and a
-variable can hold different types over its life (Python, JavaScript).
-
-**Strong vs. weak:** a *strongly* typed language won't silently convert
-incompatible types for you. A *weakly* typed one will.
-
-Python and JavaScript are both dynamically typed, but Python is strong and
-JavaScript is famously weak:
-
-```python
-# Python — dynamic but strong: this raises an error
-"5" + 5   # TypeError: can only concatenate str (not "int") to str
-```
-
-```javascript
-// JavaScript — dynamic and weak: this silently coerces
-"5" + 5   // "55" (number converted to string)
-"5" - 5   // 0 (string converted to number — inconsistent with above!)
-```
-
-**Apply it when:** debugging type-related bugs — in JS, always ask
-"is this being silently coerced?" before assuming a bug is elsewhere.
-In Python, if you get a `TypeError`, the language is protecting you by
-refusing to guess.
-
----
-
-### 2.3 Data Structures
-
-The core containers almost every language provides in some form:
-
-| Concept | Python | JavaScript |
-|---|---|---|
-| Ordered list | `list` — `[1, 2, 3]` | `Array` — `[1, 2, 3]` |
-| Key-value map | `dict` — `{"a": 1}` | `Object` / `Map` |
-| Unique collection | `set` — `{1, 2, 3}` | `Set` |
-| Fixed, immutable sequence | `tuple` — `(1, 2)` | (no native tuple — use a frozen array or object) |
-
-**Python**
-```python
-numbers = [1, 2, 3]
-numbers.append(4)
-
-person = {"name": "Alice", "age": 30}
-print(person["name"])
-
-unique = {1, 2, 2, 3}  # {1, 2, 3} — duplicates dropped
-
-point = (10, 20)  # tuple — can't be modified after creation
-```
-
-**JavaScript**
-```javascript
-const numbers = [1, 2, 3];
-numbers.push(4);
-
-const person = { name: "Alice", age: 30 };
-console.log(person.name);
-
-const unique = new Set([1, 2, 2, 3]); // Set {1, 2, 3}
-
-const point = Object.freeze([10, 20]); // closest JS equivalent to a tuple
-```
-
-**Apply it when:** choosing a data structure is choosing performance
-characteristics — use a map/dict for fast lookups by key, a set when you
-only care about uniqueness/membership, a list/array when order matters.
-
----
-
-### 2.4 Operators
-
-Arithmetic (`+ - * / %`), comparison (`== != < > <= >=`), logical
-(`and/or/not` or `&& || !`), and assignment (`= += -=`) operators are
-universal, but their exact behavior varies.
-
-**Python**
-```python
-7 // 2   # 3   — floor (integer) division
-7 % 2    # 1   — remainder
-2 ** 10  # 1024 — exponentiation
-5 == 5.0 # True — value equality
-```
-
-**JavaScript**
-```javascript
-Math.floor(7 / 2); // 3 — JS has no // operator, use Math.floor
-7 % 2;              // 1
-2 ** 10;             // 1024
-5 == 5;              // true — loose equality (coerces types)
-5 === 5;             // true — strict equality (no coercion, preferred)
-"5" == 5;             // true  (loose — coerces!)
-"5" === 5;            // false (strict — no coercion)
-```
-
-**Apply it when:** always prefer `===`/`!==` in JavaScript over `==`/`!=`
-to avoid coercion surprises. In Python, `==` is already strict about type
-in the way JS's `===` is.
-
----
-
-## 3. Structuring Code
-
-### 3.1 Functions
+## 7. Functions
 
 A function is a named, reusable block of code that takes inputs
 (parameters) and optionally produces an output (a return value). This is
@@ -412,7 +371,7 @@ differ.
 
 ---
 
-### 3.2 Scope & Lifetime
+## 8. Scope & Lifetime
 
 **Scope** determines *where* a variable is visible. **Lifetime**
 determines *how long* it exists in memory. A variable declared inside a
@@ -483,41 +442,177 @@ pattern underlies things like React hooks and event handler state.
 
 ---
 
-### 3.3 Recursion
+## 9. Data Structures
 
-A function that calls itself, typically to break a problem into smaller
-versions of the same problem. Every recursive function needs a **base
-case** (when to stop) or it will run forever (and crash with a stack
-overflow).
+The core containers almost every language provides in some form:
+
+| Concept | Python | JavaScript |
+|---|---|---|
+| Ordered list | `list` — `[1, 2, 3]` | `Array` — `[1, 2, 3]` |
+| Key-value map | `dict` — `{"a": 1}` | `Object` / `Map` |
+| Unique collection | `set` — `{1, 2, 3}` | `Set` |
+| Fixed, immutable sequence | `tuple` — `(1, 2)` | (no native tuple — use a frozen array or object) |
 
 **Python**
 ```python
-def factorial(n):
-    if n <= 1:          # base case
-        return 1
-    return n * factorial(n - 1)  # recursive case
+numbers = [1, 2, 3]
+numbers.append(4)
 
-print(factorial(5))  # 120
+person = {"name": "Alice", "age": 30}
+print(person["name"])
+
+unique = {1, 2, 2, 3}  # {1, 2, 3} — duplicates dropped
+
+point = (10, 20)  # tuple — can't be modified after creation
 ```
 
 **JavaScript**
 ```javascript
-function factorial(n) {
-  if (n <= 1) return 1;          // base case
-  return n * factorial(n - 1);   // recursive case
-}
+const numbers = [1, 2, 3];
+numbers.push(4);
 
-console.log(factorial(5)); // 120
+const person = { name: "Alice", age: 30 };
+console.log(person.name);
+
+const unique = new Set([1, 2, 2, 3]); // Set {1, 2, 3}
+
+const point = Object.freeze([10, 20]); // closest JS equivalent to a tuple
 ```
 
-**Apply it when:** the problem is naturally self-similar — tree/graph
-traversal, parsing nested structures (JSON, file systems), divide-and-
-conquer algorithms. For simple counting/repetition, a loop is usually
-clearer and more efficient.
+**Apply it when:** choosing a data structure is choosing performance
+characteristics — use a map/dict for fast lookups by key, a set when you
+only care about uniqueness/membership, a list/array when order matters.
 
 ---
 
-### 3.4 Modules & Packages
+## 10. Procedural Programming
+
+The most straightforward paradigm: a sequence of instructions executed
+top to bottom, organized into functions, without necessarily bundling
+data and behavior together (as OOP does). Everything you've written up
+to this point in the guide *is* procedural programming — it's worth
+naming explicitly now that you have functions and data structures to
+combine.
+
+**Python**
+```python
+def calculate_total(prices, tax_rate):
+    subtotal = sum(prices)
+    tax = subtotal * tax_rate
+    return subtotal + tax
+
+prices = [10, 20, 30]
+total = calculate_total(prices, 0.08)
+print(f"Total: ${total:.2f}")
+```
+
+**JavaScript**
+```javascript
+function calculateTotal(prices, taxRate) {
+  const subtotal = prices.reduce((sum, p) => sum + p, 0);
+  const tax = subtotal * taxRate;
+  return subtotal + tax;
+}
+
+const prices = [10, 20, 30];
+const total = calculateTotal(prices, 0.08);
+console.log(`Total: $${total.toFixed(2)}`);
+```
+
+**Apply it when:** the task is a straightforward sequence of steps —
+scripts, small utilities, data processing pipelines — and doesn't need
+the structure OOP or FP would add.
+
+---
+
+# Phase 3 — Robust, Connected Programs
+
+*Goal: move past toy scripts. Read real input, talk to files and the
+network, and stop letting one failure crash the whole program.*
+
+## 11. Input/Output
+
+Programs need to read data in (files, user input, network requests) and
+send data out (console, files, network responses).
+
+**Python**
+```python
+# console I/O
+name = input("What's your name? ")
+print(f"Hello, {name}")
+
+# file I/O
+with open("data.txt", "r") as f:
+    contents = f.read()
+
+with open("output.txt", "w") as f:
+    f.write("Hello, file!")
+```
+
+**JavaScript (Node.js)**
+```javascript
+// console output
+console.log("Hello, file!");
+
+// file I/O (Node.js)
+import fs from "fs/promises";
+
+const contents = await fs.readFile("data.txt", "utf-8");
+await fs.writeFile("output.txt", "Hello, file!");
+```
+
+**Apply it when:** any time your program needs to interact with the
+outside world — this is how programs stop being closed loops and start
+doing useful work with real data.
+
+---
+
+## 12. Exceptions (try/catch)
+
+When something goes wrong, a program can **throw/raise** an exception,
+which interrupts normal flow until something **catches** it — otherwise
+the program crashes. This becomes essential the moment you're doing real
+I/O (Section 11) — files might not exist, input might be malformed,
+networks fail.
+
+**Python**
+```python
+def divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Can't divide by zero")
+        return None
+    finally:
+        print("This always runs")
+
+divide(10, 0)
+```
+
+**JavaScript**
+```javascript
+function divide(a, b) {
+  try {
+    if (b === 0) throw new Error("Can't divide by zero");
+    return a / b;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  } finally {
+    console.log("This always runs");
+  }
+}
+
+divide(10, 0);
+```
+
+**Apply it when:** something might fail in a way you can't fully prevent
+(network calls, file access, user input, division by zero) — wrap it so
+one failure doesn't crash the whole program.
+
+---
+
+## 13. Modules & Packages
 
 As programs grow, code gets split across files (modules) and reusable
 groups of files (packages/libraries) that can be imported where needed.
@@ -559,12 +654,209 @@ one place — pull it into its own module.
 
 ---
 
-## 4. Programming Paradigms
+## 14. APIs & Libraries
 
-A paradigm is a *style* of organizing code. Most real programs mix
-several rather than picking one purely.
+An API (Application Programming Interface) is a defined way for one
+piece of code to talk to another — your code calling a library function,
+or your code calling a remote web service over HTTP. This is where the
+Modules skill above (13) meets the outside world.
 
-### 4.1 Object-Oriented Programming (OOP)
+**Python**
+```python
+import requests
+
+response = requests.get("https://api.example.com/users")
+if response.status_code == 200:
+    users = response.json()
+    print(users)
+```
+
+**JavaScript**
+```javascript
+const response = await fetch("https://api.example.com/users");
+if (response.ok) {
+  const users = await response.json();
+  console.log(users);
+}
+```
+
+**Apply it when:** you need functionality someone else has already
+built (don't write your own date-parsing library) or your app needs data
+that lives on another server (weather data, payment processing, your own
+backend).
+
+---
+
+# Phase 4 — Deeper Concepts
+
+*Goal: understand *why* your code behaves the way it does. These
+concepts are much easier to absorb now that you've hit real bugs they
+explain — a mysteriously mutated list, a weird type coercion, a program
+that "still remembers" something it shouldn't.*
+
+## 15. Recursion
+
+A function that calls itself, typically to break a problem into smaller
+versions of the same problem. Every recursive function needs a **base
+case** (when to stop) or it will run forever (and crash with a stack
+overflow).
+
+**Python**
+```python
+def factorial(n):
+    if n <= 1:          # base case
+        return 1
+    return n * factorial(n - 1)  # recursive case
+
+print(factorial(5))  # 120
+```
+
+**JavaScript**
+```javascript
+function factorial(n) {
+  if (n <= 1) return 1;          // base case
+  return n * factorial(n - 1);   // recursive case
+}
+
+console.log(factorial(5)); // 120
+```
+
+**Apply it when:** the problem is naturally self-similar — tree/graph
+traversal, parsing nested structures (JSON, file systems), divide-and-
+conquer algorithms. For simple counting/repetition, a loop is usually
+clearer and more efficient.
+
+---
+
+## 16. Type Systems
+
+**Static vs. dynamic:** in a *statically* typed language, a variable's
+type is fixed and checked before the program runs (Java, C++, TypeScript).
+In a *dynamically* typed language, types are checked at runtime, and a
+variable can hold different types over its life (Python, JavaScript).
+
+**Strong vs. weak:** a *strongly* typed language won't silently convert
+incompatible types for you. A *weakly* typed one will.
+
+Python and JavaScript are both dynamically typed, but Python is strong and
+JavaScript is famously weak:
+
+```python
+# Python — dynamic but strong: this raises an error
+"5" + 5   # TypeError: can only concatenate str (not "int") to str
+```
+
+```javascript
+// JavaScript — dynamic and weak: this silently coerces
+"5" + 5   // "55" (number converted to string)
+"5" - 5   // 0 (string converted to number — inconsistent with above!)
+```
+
+**Apply it when:** debugging type-related bugs — in JS, always ask
+"is this being silently coerced?" before assuming a bug is elsewhere.
+In Python, if you get a `TypeError`, the language is protecting you by
+refusing to guess.
+
+---
+
+## 17. Pointers & References
+
+A pointer/reference is a value that *points to* where data lives in
+memory, rather than being the data itself. Python and JavaScript hide
+raw pointers from you, but the underlying concept still matters: objects
+and arrays are passed **by reference**, while primitives (numbers,
+strings, booleans) are passed **by value**.
+
+**Python**
+```python
+def modify_list(lst):
+    lst.append(4)  # mutates the original — lists are references
+
+my_list = [1, 2, 3]
+modify_list(my_list)
+print(my_list)  # [1, 2, 3, 4] — changed!
+
+def modify_number(n):
+    n += 1  # does NOT affect the caller — numbers are values
+
+x = 5
+modify_number(x)
+print(x)  # 5 — unchanged
+```
+
+**JavaScript**
+```javascript
+function modifyArray(arr) {
+  arr.push(4); // mutates the original — arrays are references
+}
+
+const myArray = [1, 2, 3];
+modifyArray(myArray);
+console.log(myArray); // [1, 2, 3, 4] — changed!
+
+function modifyNumber(n) {
+  n += 1; // does NOT affect the caller — numbers are values
+}
+
+let x = 5;
+modifyNumber(x);
+console.log(x); // 5 — unchanged
+```
+
+**Apply it when:** debugging "why did my object change when I didn't
+mean it to?" bugs — this is almost always because you passed a
+reference (object/array/dict) and mutated it somewhere, rather than
+creating a copy.
+
+---
+
+## 18. Memory Management
+
+Every value your program creates needs memory. The **stack** holds small,
+fixed-size data with a predictable lifetime (like local variables in a
+function call). The **heap** holds larger or longer-lived data (objects,
+arrays) that needs to stick around after a function returns.
+
+Python and JavaScript both use **automatic memory management**
+(garbage collection) — you don't manually free memory; the runtime
+detects when something is no longer reachable and reclaims it. This is
+very different from C/C++, where you allocate and free memory yourself.
+
+```python
+def make_list():
+    local_list = [1, 2, 3]  # allocated on the heap
+    return local_list       # reference survives — GC won't collect it
+
+data = make_list()  # still reachable, still alive
+# once `data` goes out of scope and nothing else references it,
+# Python's garbage collector reclaims the memory automatically
+```
+
+```javascript
+function makeArray() {
+  const localArray = [1, 2, 3]; // allocated on the heap
+  return localArray;             // reference survives
+}
+
+let data = makeArray(); // still reachable
+data = null; // no more references — eligible for garbage collection
+```
+
+**Apply it when:** you don't manually manage this in Python/JS, but
+understanding it explains memory leaks — e.g., holding onto references
+you don't need (event listeners never removed, large objects stored in a
+global cache) prevents the garbage collector from freeing them.
+
+---
+
+# Phase 5 — Paradigms & Advanced Patterns
+
+*Goal: see the ways of organizing everything you already know. These
+click much harder once you've felt the pain they solve — messy globals
+that OOP's encapsulation fixes, hard-to-test side-effecty code that
+functional purity fixes.*
+
+## 19. Object-Oriented Programming
 
 Bundles data and the functions that operate on it into **objects**,
 created from **classes**. Core ideas: encapsulation (bundling
@@ -622,7 +914,7 @@ specifics.
 
 ---
 
-### 4.2 Functional Programming
+## 20. Functional Programming
 
 Treats computation as the evaluation of **pure functions** — functions
 that always return the same output for the same input and don't modify
@@ -660,188 +952,15 @@ that's easy to test and reason about because it has no hidden state.
 
 ---
 
-### 4.3 Procedural Programming
+## 21. Error-as-Value
 
-The most straightforward paradigm: a sequence of instructions executed
-top to bottom, organized into functions, without necessarily bundling
-data and behavior together (as OOP does). Most beginner code — and a lot
-of scripting — is procedural by default.
-
-**Python**
-```python
-def calculate_total(prices, tax_rate):
-    subtotal = sum(prices)
-    tax = subtotal * tax_rate
-    return subtotal + tax
-
-prices = [10, 20, 30]
-total = calculate_total(prices, 0.08)
-print(f"Total: ${total:.2f}")
-```
-
-**JavaScript**
-```javascript
-function calculateTotal(prices, taxRate) {
-  const subtotal = prices.reduce((sum, p) => sum + p, 0);
-  const tax = subtotal * taxRate;
-  return subtotal + tax;
-}
-
-const prices = [10, 20, 30];
-const total = calculateTotal(prices, 0.08);
-console.log(`Total: $${total.toFixed(2)}`);
-```
-
-**Apply it when:** the task is a straightforward sequence of steps —
-scripts, small utilities, data processing pipelines — and doesn't need
-the structure OOP or FP would add.
-
----
-
-## 5. Memory & Execution
-
-### 5.1 Memory Management
-
-Every value your program creates needs memory. The **stack** holds small,
-fixed-size data with a predictable lifetime (like local variables in a
-function call). The **heap** holds larger or longer-lived data (objects,
-arrays) that needs to stick around after a function returns.
-
-Python and JavaScript both use **automatic memory management**
-(garbage collection) — you don't manually free memory; the runtime
-detects when something is no longer reachable and reclaims it. This is
-very different from C/C++, where you allocate and free memory yourself.
-
-```python
-def make_list():
-    local_list = [1, 2, 3]  # allocated on the heap
-    return local_list       # reference survives — GC won't collect it
-
-data = make_list()  # still reachable, still alive
-# once `data` goes out of scope and nothing else references it,
-# Python's garbage collector reclaims the memory automatically
-```
-
-```javascript
-function makeArray() {
-  const localArray = [1, 2, 3]; // allocated on the heap
-  return localArray;             // reference survives
-}
-
-let data = makeArray(); // still reachable
-data = null; // no more references — eligible for garbage collection
-```
-
-**Apply it when:** you don't manually manage this in Python/JS, but
-understanding it explains memory leaks — e.g., holding onto references
-you don't need (event listeners never removed, large objects stored in a
-global cache) prevents the garbage collector from freeing them.
-
----
-
-### 5.2 Pointers & References
-
-A pointer/reference is a value that *points to* where data lives in
-memory, rather than being the data itself. Python and JavaScript hide
-raw pointers from you, but the underlying concept still matters: objects
-and arrays are passed **by reference**, while primitives (numbers,
-strings, booleans) are passed **by value**.
-
-**Python**
-```python
-def modify_list(lst):
-    lst.append(4)  # mutates the original — lists are references
-
-my_list = [1, 2, 3]
-modify_list(my_list)
-print(my_list)  # [1, 2, 3, 4] — changed!
-
-def modify_number(n):
-    n += 1  # does NOT affect the caller — numbers are values
-
-x = 5
-modify_number(x)
-print(x)  # 5 — unchanged
-```
-
-**JavaScript**
-```javascript
-function modifyArray(arr) {
-  arr.push(4); // mutates the original — arrays are references
-}
-
-const myArray = [1, 2, 3];
-modifyArray(myArray);
-console.log(myArray); // [1, 2, 3, 4] — changed!
-
-function modifyNumber(n) {
-  n += 1; // does NOT affect the caller — numbers are values
-}
-
-let x = 5;
-modifyNumber(x);
-console.log(x); // 5 — unchanged
-```
-
-**Apply it when:** debugging "why did my object change when I didn't
-mean it to?" bugs — this is almost always because you passed a
-reference (object/array/dict) and mutated it somewhere, rather than
-creating a copy.
-
----
-
-## 6. Error Handling
-
-### 6.1 Exceptions (try/catch)
-
-When something goes wrong, a program can **throw/raise** an exception,
-which interrupts normal flow until something **catches** it — otherwise
-the program crashes.
-
-**Python**
-```python
-def divide(a, b):
-    try:
-        return a / b
-    except ZeroDivisionError:
-        print("Can't divide by zero")
-        return None
-    finally:
-        print("This always runs")
-
-divide(10, 0)
-```
-
-**JavaScript**
-```javascript
-function divide(a, b) {
-  try {
-    if (b === 0) throw new Error("Can't divide by zero");
-    return a / b;
-  } catch (error) {
-    console.log(error.message);
-    return null;
-  } finally {
-    console.log("This always runs");
-  }
-}
-
-divide(10, 0);
-```
-
-**Apply it when:** something might fail in a way you can't fully prevent
-(network calls, file access, user input, division by zero) — wrap it so
-one failure doesn't crash the whole program.
-
----
-
-### 6.2 Error-as-Value (an alternative pattern)
-
-Some languages (Go, Rust) avoid exceptions and instead return an error
-*as a normal value* the caller must explicitly check. Python and
-JavaScript are exception-based by default, but the pattern still shows up
-— e.g., a function returning `None`/`null` to signal failure, or an API
-response object with a `success`/`error` field.
+Some languages (Go, Rust) avoid exceptions entirely and instead return an
+error *as a normal value* the caller must explicitly check. Python and
+JavaScript are exception-based by default (Section 12), but this pattern
+still shows up — e.g., a function returning `None`/`null` to signal
+failure, or an API response object with a `success`/`error` field. It's
+placed last because it's really a *design choice* layered on top of
+everything above it, not a new primitive concept.
 
 ```python
 def safe_divide(a, b):
@@ -876,91 +995,25 @@ ignoring an error" is dangerous.
 
 ---
 
-## 7. Input, Output & Libraries
+## How to Use This Reference
 
-### 7.1 Input/Output (I/O)
-
-Programs need to read data in (files, user input, network requests) and
-send data out (console, files, network responses).
-
-**Python**
-```python
-# console I/O
-name = input("What's your name? ")
-print(f"Hello, {name}")
-
-# file I/O
-with open("data.txt", "r") as f:
-    contents = f.read()
-
-with open("output.txt", "w") as f:
-    f.write("Hello, file!")
-```
-
-**JavaScript (Node.js)**
-```javascript
-// console output
-console.log("Hello, file!");
-
-// file I/O (Node.js)
-import fs from "fs/promises";
-
-const contents = await fs.readFile("data.txt", "utf-8");
-await fs.writeFile("output.txt", "Hello, file!");
-```
-
-**Apply it when:** any time your program needs to interact with the
-outside world — this is how programs stop being closed loops and start
-doing useful work with real data.
-
----
-
-### 7.2 APIs & Libraries
-
-An API (Application Programming Interface) is a defined way for one
-piece of code to talk to another — your code calling a library function,
-or your code calling a remote web service over HTTP.
-
-**Python**
-```python
-import requests
-
-response = requests.get("https://api.example.com/users")
-if response.status_code == 200:
-    users = response.json()
-    print(users)
-```
-
-**JavaScript**
-```javascript
-const response = await fetch("https://api.example.com/users");
-if (response.ok) {
-  const users = await response.json();
-  console.log(users);
-}
-```
-
-**Apply it when:** you need functionality someone else has already
-built (don't write your own date-parsing library) or your app needs data
-that lives on another server (weather data, payment processing, your own
-backend).
-
----
-
-## 8. How to Use This Reference
-
-1. **Don't memorize syntax — understand the concept first.** Once you
+1. **Work through the phases in order the first time.** Phase 1 alone is
+   enough to write real, if clumsy, programs — don't skip ahead to
+   Phase 5 looking for "the good stuff." OOP and FP are much easier to
+   appreciate once you've felt the problems they solve.
+2. **Don't memorize syntax — understand the concept first.** Once you
    know *what* a closure or a pure function *is*, the syntax for it in
    any new language is a five-minute lookup.
-2. **When learning a new language, map it against this list.** Ask: how
+3. **When learning a new language, map it against this list.** Ask: how
    does this language do loops? Conditionals? Error handling? Is it
    statically or dynamically typed? You'll find you already know most of
    the "shape" of the language before writing a line of it.
-3. **Use this as a debugging checklist.** Stuck on unexpected behavior?
-   Check: is this a scope issue? A reference vs. value issue? A type
-   coercion issue (especially in JS)? Most bugs trace back to one of the
+4. **Use this as a debugging checklist**, out of order, once you've
+   finished it once. Stuck on unexpected behavior? Check: is this a
+   scope issue (8)? A reference vs. value issue (17)? A type coercion
+   issue (16, especially in JS)? Most bugs trace back to one of the
    sections above.
-4. **Practice by porting code.** Take a small script you've written in
+5. **Practice by porting code.** Take a small script you've written in
    Python and rewrite it in JavaScript (or vice versa) using this guide
    section by section — it's one of the fastest ways to cement both
    languages at once.
