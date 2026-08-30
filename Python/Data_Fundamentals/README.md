@@ -73,6 +73,7 @@ Concepts here build on each other. Going out of order will work, but you'll hit 
 7. **Abstract Data Structures** — structures built *on top of* the ones above, with rules about how data goes in and comes out
 8. **Algorithms** — step-by-step procedures that use the structures above to solve real problems
 
+
 ```
 Variables & Types → Operators → File Handling → Data Structures → Algorithm Analysis → Abstract Data Structures → Algorithms
 ```
