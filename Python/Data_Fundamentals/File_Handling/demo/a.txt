@@ -1,0 +1,6 @@
+this line was appended by a run of a.py
+extra line A
+extra line B
+this line was appended by a run of a.py
+extra line A
+extra line B
