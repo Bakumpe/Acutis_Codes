@@ -1,5 +1,14 @@
 # Dynamic Programming
 
+> **Where this fits:** this is the hands-on counterpart to
+> [Section 15 — Recursion](../../../../README.md#15-recursion) in the main
+> cross-language reference. Read that section first if you haven't — DP is
+> best understood as "recursion, plus a memory for what you've already
+> solved." Code here lives alongside [`BFS/`](../BFS/bfs.py) and
+> [`DFS/`](../DFS/dfs.py) in the `Algorithms/` folder, and follows the same
+> Python-only convention (this topic is about the *technique*, not a
+> language comparison).
+
 ## What is Dynamic Programming?
 
 Dynamic Programming (DP) is a technique for solving problems by breaking them
@@ -47,6 +56,27 @@ plain recursion is already efficient.
 
 ---
 
+## Approach 0: Brute-Force Recursion (the starting point)
+
+Before memoizing anything, write the naive recursive version. It's the
+same shape you'll keep for Approach 1 — you're about to add exactly one
+thing to it.
+
+```python
+def fib(n):
+    if n <= 1:                       # base case
+        return n
+    return fib(n - 1) + fib(n - 2)   # recursive case — but recomputes work!
+
+print(fib(10))  # 55
+```
+
+This is O(2^n) — every call branches into two more, and the same smaller
+values get recomputed over and over. That's the overlapping-subproblems
+symptom from above, and it's the signal to reach for DP.
+
+---
+
 ## Approach 1: Memoization (Top-Down)
 
 **Idea:** Start from the original problem and recurse *downward* into
@@ -55,23 +85,40 @@ Before solving a subproblem, check if it's already been solved — if so,
 reuse the cached answer instead of recomputing it.
 
 **Characteristics:**
-- Built on top of a recursive solution
-- Uses a cache (hash map or array) to store results
+- Built directly on top of the recursive solution above — only one change
+- Uses a cache (dict or array) to store results
 - Only computes subproblems that are actually needed
 - Uses the call stack, so very deep recursion can risk a stack overflow
+  (Python's default recursion limit is ~1000 calls)
 
-**Fibonacci — Memoized:**
-```cpp
-#include <unordered_map>
-using namespace std;
+**Fibonacci — Memoized (manual cache):**
+```python
+cache = {}
 
-unordered_map<int, long long> cache;
+def fib(n):
+    if n <= 1:
+        return n
+    if n in cache:            # already solved -> reuse
+        return cache[n]
+    cache[n] = fib(n - 1) + fib(n - 2)
+    return cache[n]
 
-long long fib(int n) {
-    if (n <= 1) return n;
-    if (cache.count(n)) return cache[n];   // already solved -> reuse
-    return cache[n] = fib(n - 1) + fib(n - 2);
-}
+print(fib(50))  # 12586269025 — instant, vs. unusable with brute force
+```
+
+**Fibonacci — Memoized (Python's built-in decorator):**
+Python's standard library gives you memoization for free — worth knowing,
+even though writing it manually (above) is what builds the intuition.
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(50))  # 12586269025
 ```
 
 **How to think through it out loud (interview framing):**
@@ -84,7 +131,7 @@ long long fib(int n) {
 ## Approach 2: Tabulation (Bottom-Up)
 
 **Idea:** Start from the *smallest* subproblems and build upward, filling
-a table (usually an array) iteratively, until you reach the original
+a table (usually a list) iteratively, until you reach the original
 problem's answer.
 
 **Characteristics:**
@@ -93,37 +140,33 @@ problem's answer.
 - Typically computes every subproblem from the smallest up to `n`,
   even ones that might not strictly be needed
 - Often easier to optimize for space (you frequently only need the
-  last one or two rows of the table, not the whole thing)
+  last one or two entries of the table, not the whole thing)
 
 **Fibonacci — Tabulated:**
-```cpp
-#include <vector>
-using namespace std;
+```python
+def fib(n):
+    if n <= 1:
+        return n
+    table = [0] * (n + 1)
+    table[0], table[1] = 0, 1
+    for i in range(2, n + 1):
+        table[i] = table[i - 1] + table[i - 2]
+    return table[n]
 
-long long fib(int n) {
-    if (n <= 1) return n;
-    vector<long long> table(n + 1);
-    table[0] = 0;
-    table[1] = 1;
-    for (int i = 2; i <= n; i++) {
-        table[i] = table[i - 1] + table[i - 2];
-    }
-    return table[n];
-}
+print(fib(50))  # 12586269025
 ```
 
 **Space-optimized version** (since we only ever need the last two values):
-```cpp
-long long fib(int n) {
-    if (n <= 1) return n;
-    long long prev = 0, curr = 1;
-    for (int i = 2; i <= n; i++) {
-        long long next = prev + curr;
-        prev = curr;
-        curr = next;
-    }
-    return curr;
-}
+```python
+def fib(n):
+    if n <= 1:
+        return n
+    prev, curr = 0, 1
+    for _ in range(2, n + 1):
+        prev, curr = curr, prev + curr
+    return curr
+
+print(fib(50))  # 12586269025
 ```
 
 ---
@@ -133,7 +176,7 @@ long long fib(int n) {
 | | Memoization (Top-Down) | Tabulation (Bottom-Up) |
 |---|---|---|
 | Direction | Big problem → small subproblems | Small subproblems → big problem |
-| Implementation | Recursion + cache | Loop + table (array) |
+| Implementation | Recursion + cache | Loop + table (list) |
 | Computes | Only subproblems actually needed | Usually all subproblems up to `n` |
 | Risk | Stack overflow on deep recursion | None — purely iterative |
 | Space | Cache + call stack | Table (often optimizable to O(1)) |
@@ -153,7 +196,7 @@ in this order:
 
 1. **Write the brute-force recursive solution first.**
    Focus purely on getting the recursive relationship correct — don't
-   worry about efficiency yet.
+   worry about efficiency yet. (This is Approach 0 above.)
 
 2. **Identify overlapping subproblems.**
    Ask: "Am I solving the same smaller input more than once?" If the
@@ -194,3 +237,11 @@ For each one, try solving it three ways in order: **brute-force recursion
 → memoization → tabulation.** Doing all three builds the intuition for
 recognizing DP problems quickly and choosing the right implementation
 under time pressure.
+
+---
+
+> **Next step:** once this clicks, revisit [`BFS/bfs.py`](../BFS/bfs.py) and
+> [`DFS/dfs.py`](../DFS/dfs.py) with DP in mind — several graph problems
+> (shortest path counting, longest path in a DAG) are traversal *plus* a
+> memo table bolted on, which is exactly this pattern applied to a
+> different kind of subproblem.

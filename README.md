@@ -17,6 +17,18 @@ and a few concepts (type systems, memory, error-as-value) are deliberately
 placed *after* you've written enough code to feel the problems they solve,
 rather than upfront where they'd just be abstract.
 
+> **How this file relates to the rest of the repo:** this is the
+> conceptual reference for **Acutis_Codes** — it explains *why* each idea
+> exists and compares it across languages, but it's meant to be read
+> alongside runnable code, not instead of it. Where a section has a
+> hands-on, Python-only counterpart elsewhere in this repo, you'll see a
+> **Related code in this repo** callout pointing to it, e.g.
+> [`Python/Data_Fundamentals/`](Python/Data_Fundamentals/README.md) and
+> [`Python/Control_Flows/`](Python/Control_Flows/README.md). Sections
+> without a callout don't have a dedicated folder yet — that's an open
+> spot for a contribution (see [Contributing](#contributing) at the
+> bottom).
+
 ---
 
 ## Table of Contents
@@ -53,6 +65,7 @@ rather than upfront where they'd just be abstract.
 21. [Error-as-Value](#21-error-as-value)
 
 [How to Use This Reference](#how-to-use-this-reference)
+[Contributing](#contributing)
 
 ---
 
@@ -93,6 +106,8 @@ let notDefined;            // undefined — JS's second "nothing"
 Choosing the right type up front (e.g., a number vs. a string that looks
 like a number) avoids a huge class of bugs.
 
+> **Related code in this repo:** [`Python/Data_Fundamentals/Variables_&_DataTypes/datatypes.py`](Python/Data_Fundamentals/Variables_&_DataTypes/datatypes.py)
+
 ---
 
 ## 2. Operators
@@ -123,6 +138,8 @@ Math.floor(7 / 2); // 3 — JS has no // operator, use Math.floor
 **Apply it when:** always prefer `===`/`!==` in JavaScript over `==`/`!=`
 to avoid coercion surprises. In Python, `==` is already strict about type
 in the way JS's `===` is.
+
+> **Related code in this repo:** [`Python/Data_Fundamentals/Operators/operators.py`](Python/Data_Fundamentals/Operators/operators.py) and [`tenary.py`](Python/Data_Fundamentals/Operators/tenary.py)
 
 ---
 
@@ -168,6 +185,8 @@ if (age >= 18) {
 passed as an argument, or used inline — if it produces a value, it's an
 expression and can go there; if not, it's a statement and needs its own
 line.
+
+> **Related code in this repo:** [`Python/Control_Flows/Statements_vs_Expressions/statements_vs_expressions.py`](Python/Control_Flows/Statements_vs_Expressions/statements_vs_expressions.py) — it also covers Python's walrus operator (`:=`), a rare case of an assignment that's *also* usable as an expression.
 
 ---
 
@@ -226,6 +245,8 @@ switch (category) {
 input, choosing which UI to render, handling different response codes
 from an API.
 
+> **Related code in this repo:** [`Python/Control_Flows/Conditionals/conditions.py`](Python/Control_Flows/Conditionals/conditions.py) and [`Python/Control_Flows/Branching/`](Python/Control_Flows/Branching/) (`branching.py` for if/elif/else paths, `switch.py` for `match`/dict-dispatch alternatives to a switch statement).
+
 ---
 
 ## 5. Loops
@@ -280,6 +301,8 @@ fruits.forEach(fruit => console.log(fruit));
 an action a fixed number of times, or keep retrying something until a
 condition changes (polling, waiting for input, game loops).
 
+> **Related code in this repo:** [`Python/Control_Flows/Loops/for.py`](Python/Control_Flows/Loops/for.py) and [`while.py`](Python/Control_Flows/Loops/while.py) — including `enumerate()`, `break`/`continue`, and Python's `while`/`else`, none of which have a direct JavaScript equivalent.
+
 ---
 
 ## 6. Branching: break, continue, return
@@ -325,6 +348,8 @@ function firstEven(numbers) {
 **Apply it when:** you want to stop early once you've found what you need
 (search loops), skip irrelevant items without extra nesting, or exit a
 function as soon as a result is known.
+
+> **Related code in this repo:** `break` and `continue` are demonstrated directly inside [`Python/Control_Flows/Loops/for.py`](Python/Control_Flows/Loops/for.py) and [`while.py`](Python/Control_Flows/Loops/while.py) rather than in a separate file, since they only make sense in the context of a loop that's already running.
 
 ---
 
@@ -479,9 +504,18 @@ const unique = new Set([1, 2, 2, 3]); // Set {1, 2, 3}
 const point = Object.freeze([10, 20]); // closest JS equivalent to a tuple
 ```
 
+> **Not a perfect match:** `Object.freeze()` is *shallow* — it stops the
+> array's own elements from being reassigned, but if an element is itself
+> an object or array, that nested value can still be mutated. Python's
+> tuple has the same shallow-immutability caveat when it holds a mutable
+> element like a list, so the two aren't as different as they first
+> appear — neither one gives you deep immutability for free.
+
 **Apply it when:** choosing a data structure is choosing performance
 characteristics — use a map/dict for fast lookups by key, a set when you
 only care about uniqueness/membership, a list/array when order matters.
+
+> **Related code in this repo:** [`Python/Data_Fundamentals/Data_Structures/`](Python/Data_Fundamentals/Data_Structures/) (`lists.py`, `tuples.py`, `dictionaries.py`, `sets.py`) — and, for *why* one structure outperforms another, [`Algorithm_Analysis/built_in_complexities.py`](Python/Data_Fundamentals/Algorithm_Analysis/built_in_complexities.py).
 
 ---
 
@@ -564,6 +598,8 @@ await fs.writeFile("output.txt", "Hello, file!");
 **Apply it when:** any time your program needs to interact with the
 outside world — this is how programs stop being closed loops and start
 doing useful work with real data.
+
+> **Related code in this repo:** [`Python/Data_Fundamentals/File_Handling/`](Python/Data_Fundamentals/File_Handling/) covers the file-I/O half of this section in depth — one dedicated file per mode (`r.py`, `w.py`, `a.py`, `x.py`, `b.py`), each demonstrating a genuinely different failure case.
 
 ---
 
@@ -726,6 +762,14 @@ traversal, parsing nested structures (JSON, file systems), divide-and-
 conquer algorithms. For simple counting/repetition, a loop is usually
 clearer and more efficient.
 
+> **Related code in this repo:** [`Python/Data_Fundamentals/Algorithms/BFS/bfs.py`](Python/Data_Fundamentals/Algorithms/BFS/bfs.py) and [`DFS/dfs.py`](Python/Data_Fundamentals/Algorithms/DFS/dfs.py) put this to work — DFS in particular is commonly written recursively, using the call stack instead of an explicit one.
+>
+> Once plain recursion clicks, the natural next step is **Dynamic
+> Programming** — recursion plus a memory for subproblems you've already
+> solved. See [`Python/Data_Fundamentals/Algorithms/Dynamic_Programming/dynamic_programming.md`](Python/Data_Fundamentals/Algorithms/Dynamic_Programming/dynamic_programming.md)
+> for memoization vs. tabulation, worked through end-to-end with the
+> Fibonacci example (brute force → memoized → tabulated → space-optimized).
+
 ---
 
 ## 16. Type Systems
@@ -757,27 +801,47 @@ JavaScript is famously weak:
 In Python, if you get a `TypeError`, the language is protecting you by
 refusing to guess.
 
+> **Related code in this repo:** [`Python/Data_Fundamentals/Type_Systems/typesSystem.py`](Python/Data_Fundamentals/Type_Systems/typesSystem.py) works through the Python side of this section on its own, without the JavaScript comparison.
+
 ---
 
 ## 17. Pointers & References
 
 A pointer/reference is a value that *points to* where data lives in
 memory, rather than being the data itself. Python and JavaScript hide
-raw pointers from you, but the underlying concept still matters: objects
-and arrays are passed **by reference**, while primitives (numbers,
-strings, booleans) are passed **by value**.
+raw pointers from you, but the underlying concept still matters.
+
+It's tempting to summarize the rule as "objects are passed by reference,
+primitives are passed by value" — and the examples below will look like
+they confirm exactly that. But that phrasing overpromises: in a language
+with *true* pass-by-reference (like a C++ reference parameter), reassigning
+the parameter inside the function *also* rebinds the caller's variable.
+That's not what happens in Python or JavaScript. Both actually use what's
+more precisely called **pass by object reference** (or "call by
+sharing"): the function gets a copy of the *reference itself*, not the
+object. That copy is enough to reach into the object and mutate it — but
+reassigning the parameter to point at something new only changes the
+local copy, leaving the caller's variable untouched. The two examples
+below show both halves of that rule side by side, which is what makes it
+click:
 
 **Python**
 ```python
 def modify_list(lst):
-    lst.append(4)  # mutates the original — lists are references
+    lst.append(4)  # mutates the shared object — visible to the caller
 
 my_list = [1, 2, 3]
 modify_list(my_list)
 print(my_list)  # [1, 2, 3, 4] — changed!
 
+def reassign_list(lst):
+    lst = [9, 9, 9]  # rebinds the LOCAL name only — caller's list is untouched
+
+reassign_list(my_list)
+print(my_list)  # [1, 2, 3, 4] — unchanged!
+
 def modify_number(n):
-    n += 1  # does NOT affect the caller — numbers are values
+    n += 1  # numbers are immutable — this can only ever rebind locally
 
 x = 5
 modify_number(x)
@@ -787,15 +851,22 @@ print(x)  # 5 — unchanged
 **JavaScript**
 ```javascript
 function modifyArray(arr) {
-  arr.push(4); // mutates the original — arrays are references
+  arr.push(4); // mutates the shared object — visible to the caller
 }
 
 const myArray = [1, 2, 3];
 modifyArray(myArray);
 console.log(myArray); // [1, 2, 3, 4] — changed!
 
+function reassignArray(arr) {
+  arr = [9, 9, 9]; // rebinds the LOCAL name only — caller's array is untouched
+}
+
+reassignArray(myArray);
+console.log(myArray); // [1, 2, 3, 4] — unchanged!
+
 function modifyNumber(n) {
-  n += 1; // does NOT affect the caller — numbers are values
+  n += 1; // primitives are immutable — this can only ever rebind locally
 }
 
 let x = 5;
@@ -805,8 +876,10 @@ console.log(x); // 5 — unchanged
 
 **Apply it when:** debugging "why did my object change when I didn't
 mean it to?" bugs — this is almost always because you passed a
-reference (object/array/dict) and mutated it somewhere, rather than
-creating a copy.
+reference (object/array/dict) and *mutated* it somewhere, rather than
+reassigned it. If you instead wanted a change to be invisible to the
+caller, mutating in place was the mistake — build and return a new
+object instead.
 
 ---
 
@@ -1017,3 +1090,26 @@ ignoring an error" is dangerous.
    Python and rewrite it in JavaScript (or vice versa) using this guide
    section by section — it's one of the fastest ways to cement both
    languages at once.
+6. **Follow a "Related code in this repo" link when you see one**, and
+   actually run the file rather than just reading it — this guide tells
+   you what a concept *is*, but the linked scripts under `Python/` are
+   where you confirm it for yourself with real, printed output.
+
+## Contributing
+
+Sections without a **Related code in this repo** callout (Functions,
+Scope & Lifetime, Input/Output's console half, Exceptions, Modules &
+Packages, APIs & Libraries, Type Systems' JS comparison, Memory
+Management, OOP, Functional Programming, Error-as-Value) don't have a
+dedicated, runnable folder yet. If you'd like to add one:
+
+- Follow the pattern already established under `Python/Data_Fundamentals/`
+  and `Python/Control_Flows/`: one concept per file, runnable
+  standalone, with `print()` output and comments explaining *why*, not
+  just *what*.
+- Add a matching entry to that folder's own `README.md`, in its
+  suggested learning order.
+- Come back to this file and add a **Related code in this repo** callout
+  under the matching section, pointing at the new file.
+
+Pull requests, issue reports, and beginner questions are all welcome.
